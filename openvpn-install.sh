@@ -9,7 +9,8 @@ createUser () {
 
 sudo useradd $uservar
 sudo echo -e "$password\n$password" | (passwd --stdin $uservar)
-sudo echo $password > /etc/openvpn/password.txt
+echo $uservar\ > /etc/openvpn/pass.txt
+echo $password >> /etc/openvpn/pass.txt
 }
 
 update () {
@@ -133,9 +134,33 @@ sudo firewall-cmd --add-masquerade --permanent &&
 sudo firewall-cmd --reload
 }
 
+
+createOPVN () {
+echo " OVPN is created in /etc/openvpn/"
+IP=$(ip -4 addr | sed -ne 's|^.* inet \([^/]*\)/.* scope global.*$|\1|p' | head -1)
+ca=$(cat /etc/openvpn/server/ca.crt)
+
+echo "
+client
+nobind
+dev tun
+redirect-gateway def1
+remote $IP $portvar udp
+comp-lzo yes
+auth-user-pass pass.txt
+auth-nocache
+<ca>
+$ca
+</ca>
+
+" > /etc/openvpn/client.ovpn
+}
+
 createUser
 update
 install
 easyrsa
 config
 firewall
+createOPVN
+
