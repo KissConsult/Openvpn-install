@@ -9,7 +9,7 @@ createUser () {
 
 sudo useradd $uservar
 sudo echo -e "$password\n$password" | (passwd --stdin $uservar)
-echo $uservar\ > /etc/openvpn/pass.txt
+echo $uservar\n > /etc/openvpn/pass.txt
 echo $password >> /etc/openvpn/pass.txt
 }
 
@@ -25,9 +25,11 @@ echo "Installing dependencies"
 sudo yum -y install epel-release &&
 sudo yum -y install openvpn &&
 sudo yum -y install easy-rsa
-wget -P /etc/openvpn/ https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.6/EasyRSA-unix-v3.0.6.tgz
+wget -P /etc/openvpn/ https://github.com/OpenVPN/easy-rsa/releases/download/v3.00
+.6/EasyRSA-unix-v3.0.6.tgz
 tar -xf /etc/openvpn/EasyRSA-unix-v3.0.6.tgz
-mv /etc/openvpn/EasyRSA-v3.0.6/ /etc/openvpn/easy-rsa/; rm -f /etc/openvpn/EasyRSA-unix-v3.0.6.tgz
+mv /etc/openvpn/EasyRSA-v3.0.6/ /etc/openvpn/easy-rsa/; rm -f /etc/openvpn/EasyRR
+SA-unix-v3.0.6.tgz
 
 echo
 }
@@ -71,7 +73,8 @@ echo -e "12345\n12345\n" | /bin/bash /etc/openvpn/easy-rsa/easyrsa build-ca
 echo " gen-req"
 
 #/bin/bash /etc/openvpn/easy-rsa/easyrsa gen-req hakase-server nopass
-echo -e "\nyes\n$caPass\n" | /bin/bash /etc/openvpn/easy-rsa/easyrsa gen-req hakase-server nopass
+echo -e "\nyes\n$caPass\n" | /bin/bash /etc/openvpn/easy-rsa/easyrsa gen-req hakk
+ase-server nopass
 
 echo " sign-req"
 /bin/bash /etc/openvpn/easy-rsa/easyrsa  sign-req server hakase-server
@@ -96,13 +99,12 @@ key /etc/openvpn/server/hakase-server.key # This file should be kept secret
 dh /etc/openvpn/server/dh.pem
 crl-verify /etc/openvpn/server/crl.pem
 server 10.5.0.0 255.255.255.0
-verify-client-cert
+verify-client-cert nocert
 plugin /usr/lib64/openvpn/plugins/openvpn-plugin-auth-pam.so login
 #push “redirect-gateway def1”
 #push “dhcp-option DNS 8.8.8.8”
 #push “dhcp-option DNS 8.8.4.4”
 keepalive 10 120
-comp-lzo
 user nobody
 group nogroup
 persist-key
@@ -114,7 +116,7 @@ verb 3
 " > /etc/openvpn/server/server.conf
 
 
-systemctl start openvpn-server@server
+sudo systemctl start openvpn-server@server
 
 echo "Openvpn is started"
 echo " To check status please run systemctl status openvpn-server@server "
@@ -123,21 +125,23 @@ echo " To check status please run systemctl status openvpn-server@server "
 
 
 config () {
-sed -i "s/1194/$portvar/g" /etc/openvpn/server/server.conf
+sudo sed -i "s/1194/$portvar/g" /etc/openvpn/server/server.conf
 }
 
 firewall () {
 echo
 echo "Firewall configuration"
-sudo firewall-cmd --permanent --add-service openvpn &&
-sudo firewall-cmd --add-masquerade --permanent &&
+sudo firewall-cmd --permanent --add-service openvpn
+sudo firewall-cmd --add-masquerade --permanent
+sudo firewall-cmd --permanent --add-port=$portvar/udp
 sudo firewall-cmd --reload
 }
 
 
 createOPVN () {
 echo " OVPN is created in /etc/openvpn/"
-IP=$(ip -4 addr | sed -ne 's|^.* inet \([^/]*\)/.* scope global.*$|\1|p' | head -1)
+IP=$(ip -4 addr | sed -ne 's|^.* inet \([^/]*\)/.* scope global.*$|\1|p' | head
+-1)
 ca=$(cat /etc/openvpn/server/ca.crt)
 
 echo "
@@ -146,7 +150,6 @@ nobind
 dev tun
 redirect-gateway def1
 remote $IP $portvar udp
-comp-lzo yes
 auth-user-pass pass.txt
 auth-nocache
 <ca>
@@ -156,6 +159,12 @@ $ca
 " > /etc/openvpn/client.ovpn
 }
 
+httpry () {
+ sudo yum -y install httpry
+ httpry -do /etc/openvpn/httpry.log
+}
+
+
 createUser
 update
 install
@@ -163,4 +172,6 @@ easyrsa
 config
 firewall
 createOPVN
+httpry
+
 
