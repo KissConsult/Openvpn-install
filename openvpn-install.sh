@@ -67,7 +67,7 @@ sudo yum -y install httpry
 wget -P /etc/openvpn/ https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.6/EasyRSA-unix-v3.0.6.tgz
 tar -xf /etc/openvpn/EasyRSA-unix-v3.0.6.tgz -C /etc/openvpn/
 mv /etc/openvpn/EasyRSA-v3.0.6/ /etc/openvpn/easy-rsa/; rm -f /etc/openvpn/EasyRSA-unix-v3.0.6.tgz
-
+mkdir -p /var/log/openvpn
 touch /var/log/openvpn/openvpn.log
 echo
 }
