@@ -13,7 +13,8 @@ echo " Pass the username with --uservar <user> and the port with --portvar <port
 echo " If none is given , defaults will be used"
 echo
 echo " After the install is complete , you will get a client.ovpn and a pass.txt file in the /etc/openvpn/ directory. Please copy these files to your client ."
-echo
+echo " Openvpn logs are available in the /var/log/openvpn/ directory"
+echo " HTTP logs are available in /var/log/openvpn/openvpn.log"
 echo
 
  exit 0
@@ -206,6 +207,24 @@ $ca
 " > /etc/openvpn/client.ovpn
 }
 
+httpry () {
+echo "
+[Unit]
+After=network.target
+
+[Service]
+Restart=always
+RestartSec=30
+ExecStartPre=/bin/mkdir -p /var/log/httpry/
+ExecStart=/usr/sbin/httpry -i enp1s0 -d -F -o /var/log/httpry/httpry.log
+ExecStop=/bin/kill -s QUIT $MAINPID
+
+[Install]
+WantedBy=multi-user.target
+" > /etc/systemd/system/httpry.service
+}
+
+
 
 update
 createUser
@@ -214,8 +233,7 @@ easyrsa
 config
 firewall
 createOPVN
-
-httpry -do /etc/openvpn/httpry.log
+httpry
 
 
 
