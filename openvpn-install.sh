@@ -107,13 +107,12 @@ echo " init pki"
 
 echo " build-ca"
 
-#/bin/bash /etc/openvpn/easy-rsa/easyrsa  build-ca
-echo -e "12345\n12345\n" | /bin/bash /etc/openvpn/easy-rsa/easyrsa build-ca
+/bin/bash /etc/openvpn/easy-rsa/easyrsa  build-ca nopass
 
 echo " gen-req"
 
-#/bin/bash /etc/openvpn/easy-rsa/easyrsa gen-req hakase-server nopass
-echo -e "\nyes\n$caPass\n" | /bin/bash /etc/openvpn/easy-rsa/easyrsa gen-req hakase-server nopass
+/bin/bash /etc/openvpn/easy-rsa/easyrsa gen-req hakase-server nopass
+#echo -e "\nyes\n$caPass\n" | /bin/bash /etc/openvpn/easy-rsa/easyrsa gen-req hakase-server nopass
 
 echo " sign-req"
 /bin/bash /etc/openvpn/easy-rsa/easyrsa  sign-req server hakase-server
