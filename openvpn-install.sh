@@ -158,7 +158,7 @@ log-append /var/log/openvpn/openvpn.log
 verb 3
 " > /etc/openvpn/server/server.conf
 
-setenforfce 0
+setenforce 0
 # starts the server
 sudo systemctl start openvpn-server@server
 
