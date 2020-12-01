@@ -3,13 +3,13 @@
 #reads the Username and the Port by the user
 
 uservar=${uservar:-user}
-portvar=${portvar:-1994}
+portvar=${portvar:-1194}
 
 #reads first variable passed, displays help if "-h"
 if [ "$1" == "-h" ];then
 echo " This script will install and configure an Openvpn server"
 echo
-echo " Pass the username with --uservar and the port with --portvar "
+echo " Pass the username with --uservar <user> and the port with --portvar <port> "
 echo " If none is given , defaults will be used"
 echo
 echo " After the install is complete , you will get a client.ovpn and a pass.txt file in the /etc/openvpn/ directory. Please copy these files to your client ."
