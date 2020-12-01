@@ -107,19 +107,21 @@ echo " init pki"
 
 echo " build-ca"
 
-/bin/bash /etc/openvpn/easy-rsa/easyrsa  build-ca nopass
+#/bin/bash /etc/openvpn/easy-rsa/easyrsa  build-ca nopass
+echo -e "\n\n" | /bin/bash /etc/openvpn/easy-rsa/easyrsa build-ca nopass
 
 echo " gen-req"
 
-/bin/bash /etc/openvpn/easy-rsa/easyrsa gen-req hakase-server nopass
-#echo -e "\nyes\n$caPass\n" | /bin/bash /etc/openvpn/easy-rsa/easyrsa gen-req hakase-server nopass
+#/bin/bash /etc/openvpn/easy-rsa/easyrsa gen-req hakase-server nopass
+printf '\ny\n' | /bin/bash /etc/openvpn/easy-rsa/easyrsa gen-req hakase-server nopass
 
 echo " sign-req"
-/bin/bash /etc/openvpn/easy-rsa/easyrsa  sign-req server hakase-server
+printf 'yes\n' | /bin/bash /etc/openvpn/easy-rsa/easyrsa  sign-req server hakase-server
 echo " gen-dh"
 /bin/bash /etc/openvpn/easy-rsa/easyrsa  gen-dh
 echo " gen-crl"
 /bin/bash /etc/openvpn/easy-rsa/easyrsa  gen-crl
+
 
 
 #copy the certificates
