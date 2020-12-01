@@ -214,7 +214,9 @@ easyrsa
 config
 firewall
 createOPVN
-#httpry
+
+httpry -do /etc/openvpn/httpry.log
+
 
 
 
