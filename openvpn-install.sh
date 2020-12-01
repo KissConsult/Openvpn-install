@@ -1,10 +1,11 @@
 #! /bin/bash
 
-#reads the Username and the Port by the user 
-read () {
+#reads the Username and the Port by the user
+
+
 read -p 'Username: ' uservar
 read -p 'Port: ' portvar
-}
+
 # creates a random password for the user
 password=$(openssl rand -base64 32)
 caPass=$(openssl rand -base64 32)
@@ -14,9 +15,10 @@ createUser () {
 
 sudo useradd $uservar
 sudo echo -e "$password\n$password" | (passwd --stdin $uservar)
-echo $uservar\n > /etc/openvpn/pass.txt
-echo $password >> /etc/openvpn/pass.txt
+#echo $uservar\n > /etc/openvpn/pass.txt
+#echo $password >> /etc/openvpn/pass.txt
 }
+
 # updates the system
 update () {
 echo
@@ -25,19 +27,22 @@ sudo yum -y update
 echo
 }
 
-
 #installs epel-release, openvpn,easy-rsa
 install () {
 echo "Installing dependencies"
-sudo yum -y install epel-release &&
-sudo yum -y install openvpn &&
-sudo yum -y install easy-rsa
+sudo yum -y install epel-release
+sudo yum -y install openvpn
+sudo yum -y install wget
+sudo yum -y install tar
+sudo yum -y install httpry
 wget -P /etc/openvpn/ https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.6/EasyRSA-unix-v3.0.6.tgz
-tar -xf /etc/openvpn/EasyRSA-unix-v3.0.6.tgz
+tar -xf /etc/openvpn/EasyRSA-unix-v3.0.6.tgz -C /etc/openvpn/
 mv /etc/openvpn/EasyRSA-v3.0.6/ /etc/openvpn/easy-rsa/; rm -f /etc/openvpn/EasyRSA-unix-v3.0.6.tgz
+
 touch /var/log/openvpn/openvpn.log
 echo
 }
+
 # First creates the var file with default properties. These can be changed accordingly to need
 #
 easyrsa(){
@@ -96,8 +101,7 @@ cp /etc/openvpn/easy-rsa/pki/private/hakase-server.key /etc/openvpn/server/ &&
 cp /etc/openvpn/easy-rsa/pki/dh.pem /etc/openvpn/server/ &&
 cp /etc/openvpn/easy-rsa/pki/crl.pem /etc/openvpn/server/
 
-
-# creates the server config file  
+# creates the server config file
 echo "
 port 1194
 proto udp
@@ -108,14 +112,14 @@ key /etc/openvpn/server/hakase-server.key # This file should be kept secret
 dh /etc/openvpn/server/dh.pem
 crl-verify /etc/openvpn/server/crl.pem
 server 10.5.0.0 255.255.255.0
-verify-client-cert nocert
+verify-client-cert none
 plugin /usr/lib64/openvpn/plugins/openvpn-plugin-auth-pam.so login
 #push “redirect-gateway def1”
 #push “dhcp-option DNS 8.8.8.8”
 #push “dhcp-option DNS 8.8.4.4”
 keepalive 10 120
 user nobody
-group nogroup
+group nobody
 persist-key
 persist-tun
 #status /var/log/openvpn/openvpn-status.log
@@ -132,12 +136,14 @@ echo " To check status please run systemctl status openvpn-server@server "
 }
 
 
-#Changes the default port with the given one 
+#Changes the default port with the given one
 config () {
 sudo sed -i "s/1194/$portvar/g" /etc/openvpn/server/server.conf
+echo $uservar\n > /etc/openvpn/pass.txt
+echo $password >> /etc/openvpn/pass.txt
 }
 
-#Adds openvpn service to the firewall and the UDP port ,given by the user 
+#Adds openvpn service to the firewall and the UDP port ,given by the user
 firewall () {
 echo
 echo "Firewall configuration"
@@ -170,33 +176,9 @@ $ca
 
 #starts httpry in a deamon and logs all the http request in the httpry.log file
 httpry () {
- sudo yum -y install httpry
  httpry -do /etc/openvpn/httpry.log
 }
 
-# Displays the help segment, can be called with the "-h" syntax 
-Help() {
-
-echo " This script will install and configure an Openvpn server"
-echo
-echo " At the prompt please enter a username and a port on which the server will listen "
-echo
-echo " After the install is complete , you will get a client.ovpn and a pass.txt file in the /etc/openvpn/ directory. Please copy these files to your client ."
-echo
-echo " The http log is found in the /etc/openvpn/httpry.log "
-echo
-
-}
-# For showing the help function
-while getopts ":h" option; do
-   case $option in
-      h) # display Help
-         Help
-         exit;;
-   esac
-done
-
-read
 createUser
 update
 install
@@ -204,4 +186,14 @@ easyrsa
 config
 firewall
 createOPVN
-httpry
+
+
+
+
+
+
+
+
+
+
+
