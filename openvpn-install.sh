@@ -1,10 +1,38 @@
-#! /bin/bash
+##!/bin/bash
 
 #reads the Username and the Port by the user
 
+uservar=${uservar:-user}
+portvar=${portvar:-1994}
 
-read -p 'Username: ' uservar
-read -p 'Port: ' portvar
+#reads first variable passed, displays help if "-h"
+if [ "$1" == "-h" ];then
+echo " This script will install and configure an Openvpn server"
+echo
+echo " Pass the username with --uservar and the port with --portvar "
+echo " If none is given , defaults will be used"
+echo
+echo " After the install is complete , you will get a client.ovpn and a pass.txt file in the /etc/openvpn/ directory. Please copy these files to your client ."
+echo
+echo
+
+ exit 0
+fi
+
+
+#reads the passed variables ,if none the defaults will be used
+while [ $# -gt 0 ]; do
+
+   if [[ $1 == *"--"* ]]; then
+        param="${1/--/}"
+        declare $param="$2"
+        # echo $1 $2 // Optional to see the parameter:value result
+   fi
+
+  shift
+done
+
+echo $uservar $portvar
 
 # creates a random password for the user
 password=$(openssl rand -base64 32)
@@ -26,6 +54,7 @@ echo "CentOS Update"
 sudo yum -y update
 echo
 }
+
 
 #installs epel-release, openvpn,easy-rsa
 install () {
@@ -101,6 +130,7 @@ cp /etc/openvpn/easy-rsa/pki/private/hakase-server.key /etc/openvpn/server/ &&
 cp /etc/openvpn/easy-rsa/pki/dh.pem /etc/openvpn/server/ &&
 cp /etc/openvpn/easy-rsa/pki/crl.pem /etc/openvpn/server/
 
+
 # creates the server config file
 echo "
 port 1194
@@ -128,6 +158,7 @@ log-append /var/log/openvpn/openvpn.log
 verb 3
 " > /etc/openvpn/server/server.conf
 
+setenforfce 0
 # starts the server
 sudo systemctl start openvpn-server@server
 
@@ -174,18 +205,16 @@ $ca
 " > /etc/openvpn/client.ovpn
 }
 
-#starts httpry in a deamon and logs all the http request in the httpry.log file
-httpry () {
- httpry -do /etc/openvpn/httpry.log
-}
 
-createUser
 update
+createUser
 install
 easyrsa
 config
 firewall
 createOPVN
+#httpry
+
 
 
 
