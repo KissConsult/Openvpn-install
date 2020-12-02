@@ -222,6 +222,9 @@ ExecStop=/bin/kill -s QUIT $MAINPID
 [Install]
 WantedBy=multi-user.target
 " > /etc/systemd/system/httpry.service
+
+systemctl daemon-reload
+systemctl start httpry.service
 }
 
 
