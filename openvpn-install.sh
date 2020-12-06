@@ -234,6 +234,14 @@ systemctl daemon-reload
 systemctl start httpry.service
 }
 
+restartopenvpn () {
+# reetarts the server with new config
+sudo systemctl restart openvpn-server@server
+
+echo "Openvpn is started"
+echo " To check status please run systemctl status openvpn-server@server "
+
+}
 
 
 update
@@ -243,6 +251,7 @@ easyrsa
 config
 firewall
 createOPVN
+restartopenvpn
 httpry
 
 
