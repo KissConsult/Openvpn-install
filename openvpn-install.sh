@@ -2,19 +2,20 @@
 
 #reads the Username and the Port by the user
 
-uservar=${uservar:-user}
-portvar=${portvar:-1194}
+user=${user:-user}
+port=${port:-1194}
+password=$(openssl rand -base64 32)
 
 #reads first variable passed, displays help if "-h"
 if [ "$1" == "-h" ];then
 echo " This script will install and configure an Openvpn server"
 echo
-echo " Pass the username with --uservar <user> and the port with --portvar <port> "
+echo " Pass the username with --user <user> and the port with --port <port> "
 echo " If none is given , defaults will be used"
 echo
 echo " After the install is complete , you will get a client.ovpn and a pass.txt file in the /etc/openvpn/ directory. Please copy these files to your client ."
 echo " Openvpn logs are available in the /var/log/openvpn/ directory"
-echo " HTTP logs are available in /var/log/openvpn/openvpn.log"
+echo " HTTP logs are available in /var/log/httpry/httpry.log"
 echo
 
  exit 0
@@ -27,24 +28,30 @@ while [ $# -gt 0 ]; do
    if [[ $1 == *"--"* ]]; then
         param="${1/--/}"
         declare $param="$2"
-        # echo $1 $2 // Optional to see the parameter:value result
+          if [[ "$param" =~ ^(user|port|password)$ ]]; then
+             echo ""
+          else
+             echo "$param is unknown, using default"
+         fi
    fi
 
   shift
 done
 
-echo $uservar $portvar
+echo "User:" $user "Port:" $port "Password:" $password
+
+#test
+
 
 # creates a random password for the user
-password=$(openssl rand -base64 32)
 caPass=$(openssl rand -base64 32)
 
 #Creates the user and saves in the pass.txt file , this will be used to authenticate the user
 createUser () {
 
-sudo useradd $uservar
-sudo echo -e "$password\n$password" | (passwd --stdin $uservar)
-#echo $uservar\n > /etc/openvpn/pass.txt
+sudo useradd $user
+sudo echo -e "$password\n$password" | (passwd --stdin $user)
+#echo $user\n > /etc/openvpn/pass.txt
 #echo $password >> /etc/openvpn/pass.txt
 }
 
@@ -171,8 +178,8 @@ echo " To check status please run systemctl status openvpn-server@server "
 
 #Changes the default port with the given one
 config () {
-sudo sed -i "s/1194/$portvar/g" /etc/openvpn/server/server.conf
-echo $uservar\n > /etc/openvpn/pass.txt
+sudo sed -i "s/1194/$port/g" /etc/openvpn/server/server.conf
+echo $user\n > /etc/openvpn/pass.txt
 echo $password >> /etc/openvpn/pass.txt
 }
 
@@ -182,7 +189,7 @@ echo
 echo "Firewall configuration"
 sudo firewall-cmd --permanent --add-service openvpn
 sudo firewall-cmd --add-masquerade --permanent
-sudo firewall-cmd --permanent --add-port=$portvar/udp
+sudo firewall-cmd --permanent --add-port=$port/udp
 sudo firewall-cmd --reload
 }
 
@@ -197,7 +204,7 @@ client
 nobind
 dev tun
 redirect-gateway def1
-remote $IP $portvar udp
+remote $IP $port udp
 auth-user-pass pass.txt
 auth-nocache
 <ca>
