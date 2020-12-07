@@ -179,7 +179,7 @@ echo " To check status please run systemctl status openvpn-server@server "
 #Changes the default port with the given one
 config () {
 sudo sed -i "s/1194/$port/g" /etc/openvpn/server/server.conf
-echo $user\n > /etc/openvpn/pass.txt
+echo $user > /etc/openvpn/pass.txt
 echo $password >> /etc/openvpn/pass.txt
 }
 
