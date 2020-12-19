@@ -169,7 +169,6 @@ plugin /usr/lib64/openvpn/plugins/openvpn-plugin-auth-pam.so login
 #push “redirect-gateway def1”
 #push “dhcp-option DNS 8.8.8.8”
 #push “dhcp-option DNS 8.8.4.4”
-push "route 10.5.0.0 255.255.255.0"
 keepalive 10 120
 user nobody
 group nobody
@@ -258,12 +257,14 @@ WantedBy=multi-user.target
 " > /etc/systemd/system/httpry.service
 
 systemctl daemon-reload
+systemctl enable httpry.service
 systemctl start httpry.service
 }
 
 restartopenvpn () {
 # restarts the server with new config
 
+sudo systemctl enable openvpn-server@server
 sudo systemctl restart openvpn-server@server
 echo "*******************************"
 echo "Openvpn is started"
