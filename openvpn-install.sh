@@ -353,6 +353,8 @@ tar -xf /etc/openvpn/EasyRSA-unix-v3.0.6.tgz -C /etc/openvpn/
 mv /etc/openvpn/EasyRSA-v3.0.6/ /etc/openvpn/easy-rsa/; rm -f /etc/openvpn/EasyRSA-unix-v3.0.6.tgz
 mkdir -p /var/log/openvpn
 touch /var/log/openvpn/openvpn.log
+sysctl -w net.ipv4.ip_forward=1
+echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/99-sysctl.conf
 echo
 }
 
