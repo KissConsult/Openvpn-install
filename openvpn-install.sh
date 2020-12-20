@@ -181,6 +181,8 @@ verb 3
 " > /etc/openvpn/server/server.conf
 
 setenforce 0
+sed -i s/^SELINUX=.*$/SELINUX=disabled/ /etc/selinux/config
+
 # starts the server
 sudo systemctl start openvpn-server@server
 echo "*********************************"
