@@ -140,10 +140,10 @@ echo " sign-req"
 printf 'yes\n' | /bin/bash /etc/openvpn/easy-rsa/easyrsa  sign-req server hakase-server
 
 echo " client gen-req"
-/bin/bash /etc/openvpn/easy-rsa/easyrsa   gen-req $user nopass
+printf '\ny\n' | /bin/bash /etc/openvpn/easy-rsa/easyrsa   gen-req $user nopass
 
 echo " client sign-req"
-/bin/bash /etc/openvpn/easy-rsa/easyrsa sign-req client $user
+printf 'yes\n' | /bin/bash /etc/openvpn/easy-rsa/easyrsa sign-req client $user
 
 echo " gen-dh"
 /bin/bash /etc/openvpn/easy-rsa/easyrsa  gen-dh
