@@ -138,6 +138,13 @@ printf '\ny\n' | /bin/bash /etc/openvpn/easy-rsa/easyrsa gen-req hakase-server n
 
 echo " sign-req"
 printf 'yes\n' | /bin/bash /etc/openvpn/easy-rsa/easyrsa  sign-req server hakase-server
+
+echo " client gen-req"
+/bin/bash /etc/openvpn/easy-rsa/easyrsa   gen-req $user nopass
+
+echo " client sign-req"
+/bin/bash /etc/openvpn/easy-rsa/easyrsa sign-req client $user
+
 echo " gen-dh"
 /bin/bash /etc/openvpn/easy-rsa/easyrsa  gen-dh
 echo " gen-crl"
@@ -151,6 +158,8 @@ cp /etc/openvpn/easy-rsa/pki/issued/hakase-server.crt /etc/openvpn/server/ &&
 cp /etc/openvpn/easy-rsa/pki/private/hakase-server.key /etc/openvpn/server/ &&
 cp /etc/openvpn/easy-rsa/pki/dh.pem /etc/openvpn/server/ &&
 cp /etc/openvpn/easy-rsa/pki/crl.pem /etc/openvpn/server/
+cp /etc/openvpn/easy-rsa/pki/issued/$user.crt /etc/openvpn/client/
+cp /etc/openvpn/easy-rsa/pki/private/$user.key /etc/openvpn/client/
 
 
 # creates the server config file
@@ -164,11 +173,11 @@ key /etc/openvpn/server/hakase-server.key # This file should be kept secret
 dh /etc/openvpn/server/dh.pem
 crl-verify /etc/openvpn/server/crl.pem
 server 10.5.0.0 255.255.255.0
-verify-client-cert none
+#verify-client-cert none
 plugin /usr/lib64/openvpn/plugins/openvpn-plugin-auth-pam.so login
-#push “redirect-gateway def1”
-#push “dhcp-option DNS 8.8.8.8”
-#push “dhcp-option DNS 8.8.4.4”
+push "redirect-gateway def1"
+push "dhcp-option DNS 8.8.8.8"
+push "dhcp-option DNS 8.8.4.4"
 keepalive 10 120
 user nobody
 group nobody
@@ -221,6 +230,8 @@ echo "*********************************"
 
 IP=$(ip -4 addr | sed -ne 's|^.* inet \([^/]*\)/.* scope global.*$|\1|p' | head -1)
 ca=$(cat /etc/openvpn/server/ca.crt)
+cert=$(cat /etc/openvpn/client/$user.crt)
+key=$(cat /etc/openvpn/client/$user.key)
 
 echo "
 client
@@ -228,11 +239,18 @@ nobind
 dev tun
 redirect-gateway def1
 remote $IP $port udp
-auth-user-pass pass.txt
+#auth-user-pass pass.txt
 auth-nocache
 <ca>
 $ca
 </ca>
+<cert>
+$cert
+</cert>
+<key>
+$key
+</key>
+
 
 " > /etc/openvpn/client.ovpn
 }
