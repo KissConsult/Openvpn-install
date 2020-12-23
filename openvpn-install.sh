@@ -174,10 +174,19 @@ dh /etc/openvpn/server/dh.pem
 crl-verify /etc/openvpn/server/crl.pem
 server 10.5.0.0 255.255.255.0
 #verify-client-cert none
-plugin /usr/lib64/openvpn/plugins/openvpn-plugin-auth-pam.so login
+#plugin /usr/lib64/openvpn/plugins/openvpn-plugin-auth-pam.so login
 push "redirect-gateway def1"
 push "dhcp-option DNS 8.8.8.8"
 push "dhcp-option DNS 8.8.4.4"
+
+
+cipher AES-256-CBC
+tls-version-min 1.2
+tls-cipher TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256:TLS-DHE-RSA-WITH-AES-128-GCM-SHA256:TLS-DHE-RSA-WITH-AES-128-CBC-SHA256
+auth SHA512
+auth-nocache
+
+
 keepalive 10 120
 user nobody
 group nobody
@@ -240,7 +249,12 @@ dev tun
 redirect-gateway def1
 remote $IP $port udp
 #auth-user-pass pass.txt
+cipher AES-256-CBC
+auth SHA512
 auth-nocache
+tls-version-min 1.2
+tls-cipher TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256:TLS-DHE-RSA-WITH-AES-128-GCM-SHA256:TLS-DHE-RSA-WITH-AES-128-CBC-SHA256
+
 <ca>
 $ca
 </ca>
